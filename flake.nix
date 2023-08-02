@@ -1,4 +1,6 @@
 {
+  description = "A basic flake for Assemblying Pixels";
+  
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
@@ -17,8 +19,8 @@
       perSystem = { config, self', pkgs, lib, system, ... }:
         let
           cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
-          nonRustDeps = [
-            pkgs.libiconv
+          nonRustDeps = with pkgs; [
+            nodePackages_latest.npm
           ];
         in
         {
@@ -37,14 +39,18 @@
             shellHook = ''
               # For rust-analyzer 'hover' tooltips to work.
               export RUST_SRC_PATH=${pkgs.rustPlatform.rustLibSrc}
+              export PS1="\033[33;1mAssemblying-Pixels Shell 🦀 $> \033[39;0m"
             '';
             buildInputs = nonRustDeps;
             nativeBuildInputs = with pkgs; [
-              just
-              rustc
               cargo
               cargo-watch
+              rustc
               rust-analyzer
+              clippy
+              cargo-generate
+              just
+              wasm-pack
             ];
           };
 
