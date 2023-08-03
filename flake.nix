@@ -2,8 +2,14 @@
   description = "A basic flake for Assemblying Pixels";
 
   inputs = {
+    rust-overlay.url = "github:oxalica/rust-overlay";
+
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    # nixpkgs.follows = "rust-overlay/nixpkgs";
+
     flake-parts.url = "github:hercules-ci/flake-parts";
+    # flake-parts.follows = "rust-overlay/flake-parts";
+
     systems.url = "github:nix-systems/default";
 
     # Dev tools
@@ -31,6 +37,18 @@
             src = ./.;
             cargoLock.lockFile = ./Cargo.lock;
           };
+
+          # wasm = rustPlatformWasm.buildRustPackage (packages.default // {
+          #   pname = "wasm";
+
+          #   buildPhase = ''
+          #     cargo build --release -p wasm --target=wasm32-unknown-unknown
+          #   '';
+          #   installPhase = ''
+          #     mkdir -p $out/lib
+          #     cp target/wasm32-unknown-unknown/release/*.wasm $out/lib/
+          #   '';
+          # });
 
           # Rust dev environment
           devShells.default = pkgs.mkShell {
