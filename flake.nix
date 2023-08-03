@@ -40,7 +40,7 @@
             shellHook = ''
               # For rust-analyzer 'hover' tooltips to work.
               export RUST_SRC_PATH=${pkgs.rustPlatform.rustLibSrc}
-              export PS1="\033[33;1m Shell 🦀 | \W $> \033[39;0m"
+              export PS1="\033[33;1mShell 🦀 | \W $> \033[39;0m"
             '';
             buildInputs = nonRustDeps;
             nativeBuildInputs = with pkgs; [
