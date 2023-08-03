@@ -1,6 +1,6 @@
 {
   description = "A basic flake for Assemblying Pixels";
-  
+
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
@@ -21,6 +21,7 @@
           cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
           nonRustDeps = with pkgs; [
             nodePackages_latest.npm
+            nodePackages.prettier
           ];
         in
         {
@@ -39,7 +40,7 @@
             shellHook = ''
               # For rust-analyzer 'hover' tooltips to work.
               export RUST_SRC_PATH=${pkgs.rustPlatform.rustLibSrc}
-              export PS1="\033[33;1mAssemblying-Pixels Shell 🦀 $> \033[39;0m"
+              export PS1="\033[33;1m Shell 🦀 | \W $> \033[39;0m"
             '';
             buildInputs = nonRustDeps;
             nativeBuildInputs = with pkgs; [
@@ -61,6 +62,7 @@
             programs = {
               nixpkgs-fmt.enable = true;
               rustfmt.enable = true;
+              prettier.enable = true;
             };
           };
         };
