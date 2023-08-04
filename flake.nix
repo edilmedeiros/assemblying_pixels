@@ -35,12 +35,11 @@
             inputsFrom = [
               config.treefmt.build.devShell
             ];
-            shellHook = ''
+            shellHook = (lib.concatStrings [''
               # For rust-analyzer 'hover' tooltips to work.
               export RUST_SRC_PATH=${pkgs.rustPlatform.rustLibSrc}
-              export NODE_OPTIONS=--openssl-legacy-provider
               export PS1="\033[33;1mShell 🦀 | \W $> \033[39;0m"
-            '';
+            '' (if pkgs.stdenv.isDarwin then "" else "export NODE_OPTIONS=--openssl-legacy-provider")]);
             buildInputs =  with pkgs; [
               nodePackages_latest.npm
               nodePackages.prettier
