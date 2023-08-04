@@ -2,53 +2,33 @@
   description = "A basic flake for Assemblying Pixels";
 
   inputs = {
-    rust-overlay.url = "github:oxalica/rust-overlay";
 
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    # nixpkgs.follows = "rust-overlay/nixpkgs";
-
     flake-parts.url = "github:hercules-ci/flake-parts";
-    # flake-parts.follows = "rust-overlay/flake-parts";
-
     systems.url = "github:nix-systems/default";
-
+    rust-overlay.url = "github:oxalica/rust-overlay";
     # Dev tools
     treefmt-nix.url = "github:numtide/treefmt-nix";
   };
 
-  outputs = inputs:
+  outputs = inputs@{nixpkgs, rust-overlay, ...}:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       systems = import inputs.systems;
       imports = [
         inputs.treefmt-nix.flakeModule
       ];
-      perSystem = { config, self', pkgs, lib, system, ... }:
+      perSystem = { config, self', lib, system, ... }:
         let
           cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
-          nonRustDeps = with pkgs; [
-            nodePackages_latest.npm
-            nodePackages.prettier
-          ];
+          pkgs = import nixpkgs { inherit system; overlays = [rust-overlay.overlays.default];};
         in
-        {
+          {            
           # Rust package
           packages.default = pkgs.rustPlatform.buildRustPackage {
             inherit (cargoToml.package) name version;
             src = ./.;
             cargoLock.lockFile = ./Cargo.lock;
           };
-
-          # wasm = rustPlatformWasm.buildRustPackage (packages.default // {
-          #   pname = "wasm";
-
-          #   buildPhase = ''
-          #     cargo build --release -p wasm --target=wasm32-unknown-unknown
-          #   '';
-          #   installPhase = ''
-          #     mkdir -p $out/lib
-          #     cp target/wasm32-unknown-unknown/release/*.wasm $out/lib/
-          #   '';
-          # });
 
           # Rust dev environment
           devShells.default = pkgs.mkShell {
@@ -58,13 +38,20 @@
             shellHook = ''
               # For rust-analyzer 'hover' tooltips to work.
               export RUST_SRC_PATH=${pkgs.rustPlatform.rustLibSrc}
+              export NODE_OPTIONS=--openssl-legacy-provider
               export PS1="\033[33;1mShell 🦀 | \W $> \033[39;0m"
             '';
-            buildInputs = nonRustDeps;
+            buildInputs =  with pkgs; [
+              nodePackages_latest.npm
+              nodePackages.prettier
+            ];
             nativeBuildInputs = with pkgs; [
               cargo
               cargo-watch
-              rustc
+              (rust-bin.stable.latest.default.override {
+                extensions = [ "rust-src" ];
+                targets = [ "wasm32-unknown-unknown" ];
+              })
               rust-analyzer
               clippy
               cargo-generate
