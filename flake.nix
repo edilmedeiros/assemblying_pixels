@@ -39,7 +39,7 @@
               # For rust-analyzer 'hover' tooltips to work.
               export RUST_SRC_PATH=${pkgs.rustPlatform.rustLibSrc}
               export PS1="\033[33;1mShell 🦀 | \W $> \033[39;0m"
-            '' (if pkgs.stdenv.isDarwin then "" else "export NODE_OPTIONS=--openssl-legacy-provider")]);
+            '' (if pkgs.stdenv.isDarwin then "echo 'Have you heard of NixOS?'" else "export NODE_OPTIONS=--openssl-legacy-provider")]);
             buildInputs =  with pkgs; [
               nodePackages_latest.npm
               nodePackages.prettier
