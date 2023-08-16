@@ -1,14 +1,16 @@
+pub mod flow;
+use flow::*;
+
+fn field(p@Point{x, y}: &Point) -> Point {
+    let angle = y * std::f64::consts::PI;
+    Point::rotate(p, angle, Rotation::CounterClockwise)
+}
+
 fn main() {
-    println!("Hello, world!");
 
-    let vector:Vec<u32> = vec![1,2,3,4,5];
-    println!("Vector: {:?}", vector);
+    let v = simulation(1, field);
 
-    let vector_slice = vector.as_slice().chunks(2);
-    println!("Vector slice: {:?}", vector_slice);
+    println!("Particle: {v:?}");
 
-    for i in vector_slice {
-        println!("{:?}", i);
-    }
 
 }
